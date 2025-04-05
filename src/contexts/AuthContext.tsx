@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { 
   signInWithEmailAndPassword, 
@@ -13,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 export type UserRole = 'user' | 'admin' | 'superadmin';
+export type ReportStatus = 'pending' | 'investigating' | 'resolved' | 'closed';
 
 interface UserData {
   uid: string;
@@ -59,7 +61,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           
           if (userDoc.exists()) {
             const userData = userDoc.data() as Omit<UserData, 'uid'>;
-            setUserData({ uid: user.uid, ...userData });
+            // Fix: Ensure we have at least email and role properties
+            if (userData.email && userData.role) {
+              setUserData({ uid: user.uid, ...userData });
+            } else {
+              console.error('User data missing required fields (email or role)');
+              setUserData(null);
+            }
           } else {
             console.error('No user data found in Firestore');
             setUserData(null);
