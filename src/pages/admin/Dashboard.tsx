@@ -8,11 +8,13 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recha
 import { FileText, CircleAlert, Clock, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+type ReportStatus = 'pending' | 'investigating' | 'resolved' | 'closed';
+
 interface ReportData {
   id: string;
   title: string;
   description: string;
-  status: 'pending' | 'investigating' | 'resolved' | 'closed';
+  status: ReportStatus;
   category: string;
   createdAt: string;
   location: string;
@@ -97,12 +99,12 @@ const AdminDashboard = () => {
   
   useEffect(() => {
     if (!loading && recentReports.length === 0) {
-      const sampleReports = [
+      const sampleReports: ReportData[] = [
         {
           id: 'sample-1',
           title: 'Motorcycle Theft',
           description: 'Motorcycle stolen from residential area',
-          status: 'investigating',
+          status: 'investigating' as ReportStatus,
           category: 'theft',
           createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
           location: 'Green Park, Block C',
@@ -112,7 +114,7 @@ const AdminDashboard = () => {
           id: 'sample-2',
           title: 'Assault Complaint',
           description: 'Physical assault near metro station',
-          status: 'pending', 
+          status: 'pending' as ReportStatus,
           category: 'assault',
           createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
           location: 'Metro Station, Exit 4',
@@ -122,7 +124,7 @@ const AdminDashboard = () => {
           id: 'sample-3',
           title: 'Cyber Fraud',
           description: 'Online banking fraud report',
-          status: 'resolved',
+          status: 'resolved' as ReportStatus,
           category: 'fraud',
           createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
           location: 'Online',
@@ -132,7 +134,7 @@ const AdminDashboard = () => {
           id: 'sample-4',
           title: 'Trespassing',
           description: 'Unknown person entering private property',
-          status: 'investigating',
+          status: 'investigating' as ReportStatus,
           category: 'trespassing',
           createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
           location: 'Sunshine Apartments, Flat 302',

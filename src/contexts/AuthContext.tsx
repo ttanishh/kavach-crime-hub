@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { 
   signInWithEmailAndPassword, 
@@ -22,9 +21,9 @@ interface UserData {
   displayName?: string;
   phoneNumber?: string;
   photoURL?: string;
-  // Add missing properties for admin role
   stationId?: string;
   stationName?: string;
+  [key: string]: any; // For any additional properties
 }
 
 interface AuthContextType {
@@ -79,12 +78,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return unsubscribe;
   }, []);
 
-  // Redirect user based on role
   useEffect(() => {
     if (!isLoading && userData) {
       const path = window.location.pathname;
       
-      // Redirect to appropriate dashboard if at root or in auth pages
       if (path === '/' || path.startsWith('/auth')) {
         if (userData.role === 'user') {
           navigate('/u/dashboard');
@@ -95,7 +92,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
       }
       
-      // Enforce role-based URL restrictions
       if (userData.role === 'user' && (path.startsWith('/a/') || path.startsWith('/sa/'))) {
         navigate('/u/dashboard');
         toast.error('You do not have permission to access that page');
@@ -131,7 +127,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const { user } = userCredential;
       
-      // Create user document in Firestore
       const userData = {
         email: user.email,
         role,

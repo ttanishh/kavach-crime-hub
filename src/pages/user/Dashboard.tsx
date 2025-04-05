@@ -11,12 +11,14 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Link } from 'react-router-dom';
 
-// Define proper interface for report data
+// Define proper interface for report data with report status type
+type ReportStatus = 'pending' | 'investigating' | 'resolved' | 'closed';
+
 interface ReportData {
   id: string;
   title: string;
   description: string;
-  status: 'pending' | 'investigating' | 'resolved' | 'closed';
+  status: ReportStatus;
   category: string;
   createdAt: string;
   location: string;
@@ -94,12 +96,12 @@ const UserDashboard = () => {
   // For demo - create sample data if no reports exist
   useEffect(() => {
     if (!loading && reports.length === 0) {
-      const sampleReports = [
+      const sampleReports: ReportData[] = [
         {
           id: 'sample-1',
           title: 'Vehicle Theft',
           description: 'My car was stolen from the parking lot',
-          status: 'investigating',
+          status: 'investigating' as ReportStatus,
           category: 'theft',
           createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
           location: 'Central Mall Parking'
@@ -108,7 +110,7 @@ const UserDashboard = () => {
           id: 'sample-2',
           title: 'Phone Snatching',
           description: 'Someone snatched my phone while walking',
-          status: 'pending', 
+          status: 'pending' as ReportStatus, 
           category: 'robbery',
           createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
           location: 'Main Street'
