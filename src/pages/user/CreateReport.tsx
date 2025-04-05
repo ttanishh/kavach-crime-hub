@@ -70,6 +70,10 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+interface FileWithMeta extends File {
+  name: string;
+}
+
 const CreateReport = () => {
   const { userData } = useAuth();
   const navigate = useNavigate();
@@ -103,7 +107,7 @@ const CreateReport = () => {
       const mediaUrls = [];
       
       if (data.mediaFiles && data.mediaFiles.length > 0) {
-        const files = Array.from(data.mediaFiles);
+        const files = Array.from(data.mediaFiles) as FileWithMeta[];
         let completed = 0;
         
         for (const file of files) {

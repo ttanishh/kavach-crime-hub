@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -8,6 +7,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { FileText, CircleAlert, Clock, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+interface ReportData {
+  id: string;
+  title: string;
+  description: string;
+  status: 'pending' | 'investigating' | 'resolved' | 'closed';
+  category: string;
+  createdAt: string;
+  location: string;
+  reporterName?: string;
+  [key: string]: any;
+}
 
 const AdminDashboard = () => {
   const { userData } = useAuth();
@@ -19,7 +30,7 @@ const AdminDashboard = () => {
     closed: 0
   });
   
-  const [recentReports, setRecentReports] = useState<any[]>([]);
+  const [recentReports, setRecentReports] = useState<ReportData[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryData, setCategoryData] = useState<any[]>([]);
   
@@ -28,41 +39,35 @@ const AdminDashboard = () => {
       if (!userData?.uid) return;
       
       try {
-        // Get station ID from user data
         const stationId = userData.stationId || 'demo-station';
         
-        // Query reports assigned to this station
         const q = query(
           collection(db, 'reports'),
           where('assignedStationId', '==', stationId)
         );
         
         const querySnapshot = await getDocs(q);
-        const reportData: any[] = [];
+        const reportData: ReportData[] = [];
         let pending = 0;
         let investigating = 0;
         let resolved = 0;
         let closed = 0;
         
-        // Category tracking
         const categoryCount: Record<string, number> = {};
         
         querySnapshot.forEach((doc) => {
-          const data = { id: doc.id, ...doc.data() };
+          const data = { id: doc.id, ...doc.data() } as ReportData;
           reportData.push(data);
           
-          // Count by status
           if (data.status === 'pending') pending++;
           if (data.status === 'investigating') investigating++;
           if (data.status === 'resolved') resolved++;
           if (data.status === 'closed') closed++;
           
-          // Count by category
           const category = data.category || 'other';
           categoryCount[category] = (categoryCount[category] || 0) + 1;
         });
         
-        // Sort by date (newest first)
         reportData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         
         setRecentReports(reportData.slice(0, 5));
@@ -74,7 +79,6 @@ const AdminDashboard = () => {
           closed
         });
         
-        // Format category data for chart
         const formattedCategoryData = Object.keys(categoryCount).map(category => ({
           name: category.charAt(0).toUpperCase() + category.slice(1),
           count: categoryCount[category]
@@ -91,7 +95,6 @@ const AdminDashboard = () => {
     fetchDashboardData();
   }, [userData?.uid, userData?.stationId]);
   
-  // Generate sample data if no reports exist
   useEffect(() => {
     if (!loading && recentReports.length === 0) {
       const sampleReports = [
@@ -157,7 +160,6 @@ const AdminDashboard = () => {
     }
   }, [loading, recentReports.length]);
 
-  // Weekly report data for chart
   const weeklyData = [
     { name: 'Mon', reports: 4 },
     { name: 'Tue', reports: 7 },
@@ -178,7 +180,6 @@ const AdminDashboard = () => {
           </p>
         </div>
         
-        {/* Stats cards */}
         <div className="grid gap-4 md:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
@@ -225,9 +226,7 @@ const AdminDashboard = () => {
           </Card>
         </div>
         
-        {/* Charts */}
         <div className="grid gap-4 md:grid-cols-2">
-          {/* Weekly Report Trend */}
           <Card className="col-span-1">
             <CardHeader>
               <CardTitle>Weekly Report Trend</CardTitle>
@@ -253,7 +252,6 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
           
-          {/* Report Categories */}
           <Card className="col-span-1">
             <CardHeader>
               <CardTitle>Report Categories</CardTitle>
@@ -280,7 +278,6 @@ const AdminDashboard = () => {
           </Card>
         </div>
         
-        {/* Recent Reports */}
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold">Recent Reports</h2>

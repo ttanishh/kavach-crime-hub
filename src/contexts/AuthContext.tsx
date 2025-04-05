@@ -22,6 +22,9 @@ interface UserData {
   displayName?: string;
   phoneNumber?: string;
   photoURL?: string;
+  // Add missing properties for admin role
+  stationId?: string;
+  stationName?: string;
 }
 
 interface AuthContextType {

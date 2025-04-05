@@ -11,6 +11,18 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Link } from 'react-router-dom';
 
+// Define proper interface for report data
+interface ReportData {
+  id: string;
+  title: string;
+  description: string;
+  status: 'pending' | 'investigating' | 'resolved' | 'closed';
+  category: string;
+  createdAt: string;
+  location: string;
+  [key: string]: any; // For other properties that might exist
+}
+
 const statusColors: Record<string, string> = {
   'pending': 'bg-yellow-500',
   'investigating': 'bg-blue-500',
@@ -20,7 +32,7 @@ const statusColors: Record<string, string> = {
 
 const UserDashboard = () => {
   const { userData } = useAuth();
-  const [reports, setReports] = useState<any[]>([]);
+  const [reports, setReports] = useState<ReportData[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     total: 0,
@@ -41,14 +53,14 @@ const UserDashboard = () => {
         );
         
         const querySnapshot = await getDocs(q);
-        const reportData: any[] = [];
+        const reportData: ReportData[] = [];
         let pending = 0;
         let investigating = 0;
         let resolved = 0;
         let closed = 0;
         
         querySnapshot.forEach((doc) => {
-          const data = { id: doc.id, ...doc.data() };
+          const data = { id: doc.id, ...doc.data() } as ReportData;
           reportData.push(data);
           
           // Count by status
@@ -59,7 +71,7 @@ const UserDashboard = () => {
         });
         
         // Sort by date (newest first)
-        reportData.sort((a, b) => b.createdAt - a.createdAt);
+        reportData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         
         setReports(reportData);
         setStats({
