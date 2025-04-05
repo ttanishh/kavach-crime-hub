@@ -60,10 +60,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           const userDoc = await getDoc(docRef);
           
           if (userDoc.exists()) {
-            const userData = userDoc.data() as Omit<UserData, 'uid'>;
-            // Fix: Ensure we have at least email and role properties
-            if (userData.email && userData.role) {
-              setUserData({ uid: user.uid, ...userData });
+            const userDataFromFirestore = userDoc.data();
+            
+            // Ensure that the data has the required email and role fields
+            if (userDataFromFirestore && 
+                typeof userDataFromFirestore.email === 'string' && 
+                typeof userDataFromFirestore.role === 'string') {
+              
+              // Now we know we have the required fields
+              setUserData({
+                uid: user.uid,
+                email: userDataFromFirestore.email,
+                role: userDataFromFirestore.role as UserRole,
+                ...userDataFromFirestore
+              });
             } else {
               console.error('User data missing required fields (email or role)');
               setUserData(null);
